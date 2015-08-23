@@ -30,7 +30,7 @@ run_setup_py = rule(
 )
 
 
-def python_package_lib(name, dep, visibility):
+def python_package_lib(name, dep, visibility=None):
     # Install the files into the current directory and save them into a file.
     run_setup_py(
         name = name + '_build_files',
@@ -58,3 +58,27 @@ def python_package_lib(name, dep, visibility):
         srcs = [':' + name + '_loader'],
         visibility = visibility
     )
+
+
+def python_package_bundle(name, deps, visibility=None):
+    lib_deps = []
+    modules = []
+    for idx, dep in enumerate(deps):
+        base_name = '%s_%d_dep' % (name, idx)
+        python_package_lib(base_name, dep)
+        lib_deps = lib_deps + [':' + base_name]
+        modules = modules + [PACKAGE_NAME.replace('/', '.') +
+                             '.%s_loader' % base_name]
+    content = '\n'.join(['import %s' % m for m in modules])
+    native.genrule(
+        name = name + '_loader',
+        outs = [name + '_loader.py'],
+        cmd = 'echo "%s" > $@' % content
+    )
+    native.py_library(
+        name = name,
+        deps = lib_deps,
+        srcs = [':' + name + '_loader'],
+        visibility = visibility
+    )
+
