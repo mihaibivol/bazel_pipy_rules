@@ -15,7 +15,7 @@ def run_setup_py_impl(ctx):
                 'echo "[DONE] running setup.py"']
     ctx.action(
         inputs = ctx.files.dep,
-        command = '&&'.join(commands),
+        command = ' && '.join(commands),
         mnemonic = 'RunPySetup',
         outputs = [installed_files],
         use_default_shell_env = True
