@@ -15,7 +15,7 @@ def run_setup_py_impl(ctx):
                 'echo "[DONE] running setup.py"']
     ctx.action(
         inputs = ctx.files.dep,
-        command = '&&'.join(commands),
+        command = ' && '.join(commands),
         mnemonic = 'RunPySetup',
         outputs = [installed_files],
         use_default_shell_env = True
@@ -30,7 +30,7 @@ run_setup_py = rule(
 )
 
 
-def python_package_lib(name, dep, visibility=None):
+def python_package_lib(name, dep, **kwargs):
     # Install the files into the current directory and save them into a file.
     run_setup_py(
         name = name + '_build_files',
@@ -56,7 +56,7 @@ def python_package_lib(name, dep, visibility=None):
     native.py_library(
         name = name,
         srcs = [':' + name + '_loader'],
-        visibility = visibility
+        **kwargs
     )
 
 
